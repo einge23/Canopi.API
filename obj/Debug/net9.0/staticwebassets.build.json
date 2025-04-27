@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "Qga7cnXi6VZhqhRhpvtCbhlqq2v2HnVYyaBhthSD13U=",
+  "Source": "Canopy.API",
+  "BasePath": "_content/Canopy.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
