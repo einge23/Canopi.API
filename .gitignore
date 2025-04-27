@@ -1,3 +1,53 @@
 .launchSettings.json
 .vs/
 .idea/
+
+# --- Build and Binaries ---
+[Dd]ebug/
+[Rr]elease/
+bin/
+obj/
+
+# --- Package Manager (NuGet) ---
+*.nupkg
+*.snupkg
+*.dll.gz
+*.xml.gz
+*.pdb
+*.mdb
+packages/ # Older style NuGet packages directory
+
+# --- IDE Specific Files (Visual Studio, VS Code, Rider, etc.) ---
+.vs/              # Visual Studio solution user options
+.vscode/settings.json # VS Code user settings (optional, if personal)
+.vscode/*.user    # VS Code user specific files
+.idea/            # JetBrains Rider/IntelliJ IDEA project files
+
+# --- Operating System Files ---
+.DS_Store         # macOS thumbnail/metadata files
+Thumbs.db         # Windows thumbnail cache
+Desktop.ini       # Windows desktop configuration
+
+# --- Configuration (Sensitive Information) ---
+appsettings.Development.json # Often contains local dev secrets - use Secret Manager instead
+appsettings.*.user.json # User-specific appsettings overrides
+
+# --- Temporary Files ---
+*.[Tt]mp
+*.[Tt]emp
+~*.doc # Word temporary files
+~*.docx
+~*.xls # Excel temporary files
+~*.xlsx
+~*.ppt # PowerPoint temporary files
+~*.pptx
+
+# --- Log Files ---
+*.log
+
+# --- Test Results ---
+TestResults/
+
+# --- Docker related (if not part of intended build) ---
+# .dockerignore # If you have a .dockerignore, don't ignore it here!
+# Dockerfile # If you're using a Dockerfile for deployment, don't ignore it.
