@@ -15,11 +15,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: allowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000")
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
-            policy.WithOrigins("https://canopy-web-production.up.railway.app/")
+            policy.WithOrigins(
+                    "http://localhost:3000",
+                    "https://canopy-web-production.up.railway.app"
+                )
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
