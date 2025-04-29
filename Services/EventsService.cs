@@ -31,4 +31,20 @@ public class EventsService : IEventsService
         var createdEvent = await _eventsRepository.CreateAsync(eventEntity);
         return _mapper.Map<EventDto>(createdEvent);
     }
+
+    public async Task<List<EventDto>> GetCurrentMonthEvents(string userId)
+    {
+        var events = await _eventsRepository.GetCurrentMonthEventsAsync(userId);
+        
+        if (events.Count == 0)
+        {
+            _logger.LogInformation("No events found for user {UserId} in the current month.", userId);
+            return new List<EventDto>();
+        }
+        
+        _logger.LogInformation("Found {EventCount} events for user {UserId} in the current month.", events.Count, userId);
+        var eventDtos = _mapper.Map<List<EventDto>>(events);
+        
+        return eventDtos;
+    }
 }

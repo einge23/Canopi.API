@@ -20,10 +20,10 @@ public class Event
     public required string Color { get; init; }
     
     [Required]
-    public required DateTimeOffset StartTime { get; init; }
+    public required DateTime StartTime { get; init; }
     
     [Required]
-    public required DateTimeOffset EndTime { get; init; }
+    public required DateTime EndTime { get; init; }
     
     [MaxLength(100)]
     public string? Location { get; init; }

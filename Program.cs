@@ -43,7 +43,6 @@ builder.Services.AddDbContext<CanopyDbContext>(options =>
 
 var app = builder.Build();
 app.UseCors(allowSpecificOrigins);
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -22,6 +22,13 @@ public static class EventsEndpoints
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .AddEndpointFilter<ValidationFilter<CreateEventRequest>>();
         
+        //Route: GET /api/events/current-month
+        group.MapGet("/currentMonth", GetCurrentMonthEvents)
+            .WithName("GetCurrentMonthEvents")
+            .Produces<List<EventDto>>(StatusCodes.Status200OK)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .ProducesProblem(StatusCodes.Status401Unauthorized);
+        
         return group;
     }
 
@@ -36,15 +43,6 @@ public static class EventsEndpoints
         
         try
         {
-            logger.LogInformation("--- User Claims ---");
-            foreach (var claim in httpContext.User.Claims)
-            {
-                logger.LogInformation("Claim Type: {ClaimType}, Claim Value: {ClaimValue}", claim.Type, claim.Value);
-            }
-            logger.LogInformation("-------------------");
-            
-            logger.LogInformation(httpContext.ToString());
-
             var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
                          ?? httpContext.User.FindFirstValue("sub");
 
@@ -72,6 +70,33 @@ public static class EventsEndpoints
             {
                 { "Error", new[] { ex.Message } }
             });
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> GetCurrentMonthEvents(
+        IEventsService eventsService,
+        HttpContext httpContext,
+        LinkGenerator linkGenerator,
+        ILogger<EventEndpointsLogger> logger)
+    {
+        var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                     ?? httpContext.User.FindFirstValue("sub");
+        
+        if (string.IsNullOrEmpty(userId))
+        {
+            logger.LogWarning("User ID claim ('sub' or NameIdentifier) not found after successful authentication.");
+            return Results.Unauthorized();
+        }
+
+        try
+        {
+            var events = await eventsService.GetCurrentMonthEvents(userId);
+           
+            return Results.Ok(events);
         }
         catch (Exception ex)
         {
