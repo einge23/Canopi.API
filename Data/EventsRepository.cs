@@ -36,4 +36,18 @@ public class EventsRepository: IEventsRepository
             )
             .ToListAsync();
     }
+    
+    public async Task<Event> UpdateAsync(Event @event)
+    {
+        ArgumentNullException.ThrowIfNull(@event);
+        
+        var existingEvent = await _context.Events.FindAsync(@event.Id);
+        if (existingEvent == null)
+        {
+            throw new KeyNotFoundException($"Event with ID {@event.Id} not found.");
+        }
+        _context.Entry(existingEvent).CurrentValues.SetValues(@event);
+        await _context.SaveChangesAsync();
+        return @event;
+    }
 }

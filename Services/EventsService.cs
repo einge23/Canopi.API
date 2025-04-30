@@ -47,4 +47,19 @@ public class EventsService : IEventsService
         
         return eventDtos;
     }
+
+    public async Task<EventDto> UpdateEvent(EventDto request)
+    {
+        if (request.EndTime <= request.StartTime)
+        {
+            throw new ArgumentException("Event end time must be after the start time.");
+        }
+
+        _logger.LogInformation("Updating event with ID {EventId}", request.Id);
+        var eventEntity = _mapper.Map<Event>(request);
+        _logger.LogDebug("Event entity mapped from request: {@EventEntity}", eventEntity);
+        
+        var updatedEvent = await _eventsRepository.UpdateAsync(eventEntity);
+        return _mapper.Map<EventDto>(updatedEvent);
+    }
 }

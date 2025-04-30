@@ -28,6 +28,17 @@ public static class EventsEndpoints
             .Produces<List<EventDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
+
+        //Route: PUT /api/events/edit
+        group.MapPut("/edit", UpdateEvent)
+            .WithName("UpdateEvent")
+            .Accepts<EventDto>("application/json")
+            .Produces<EventDto>(StatusCodes.Status200OK)
+            .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .AddEndpointFilter<ValidationFilter<EventDto>>();
+
         
         return group;
     }
@@ -97,6 +108,41 @@ public static class EventsEndpoints
             var events = await eventsService.GetCurrentMonthEvents(userId);
            
             return Results.Ok(events);
+        }
+        catch (Exception ex)
+        {
+            return Results.Problem(ex.Message, statusCode: StatusCodes.Status500InternalServerError);
+        }
+    }
+
+    private static async Task<IResult> UpdateEvent(
+        [FromBody] EventDto request,
+        IEventsService eventsService,
+        HttpContext httpContext,
+        LinkGenerator linkGenerator,
+        ILogger<EventEndpointsLogger> logger
+    )
+    {
+        var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                     ?? httpContext.User.FindFirstValue("sub");
+        
+        if (string.IsNullOrEmpty(userId) || request.UserId != userId)
+        {
+            logger.LogWarning("User ID claim ('sub' or NameIdentifier) not found after successful authentication.");
+            return Results.Unauthorized();
+        }
+
+        try
+        {
+            var updatedEvent = await eventsService.UpdateEvent(request);
+            return Results.Ok(updatedEvent);
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.ValidationProblem(new Dictionary<string, string[]>
+            {
+                { "Error", new[] { ex.Message } }
+            });
         }
         catch (Exception ex)
         {
