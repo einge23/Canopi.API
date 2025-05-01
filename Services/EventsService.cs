@@ -32,9 +32,9 @@ public class EventsService : IEventsService
         return _mapper.Map<EventDto>(createdEvent);
     }
 
-    public async Task<List<EventDto>> GetCurrentMonthEvents(string userId)
+    public async Task<List<EventDto>> GetCurrentMonthEvents(string userId, string userTimeZoneId)
     {
-        var events = await _eventsRepository.GetCurrentMonthEventsAsync(userId);
+        var events = await _eventsRepository.GetCurrentMonthEventsAsync(userId, userTimeZoneId);
         
         if (events.Count == 0)
         {

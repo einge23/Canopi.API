@@ -89,6 +89,7 @@ public static class EventsEndpoints
     }
 
     private static async Task<IResult> GetCurrentMonthEvents(
+        [FromQuery] string timezone,
         IEventsService eventsService,
         HttpContext httpContext,
         LinkGenerator linkGenerator,
@@ -105,7 +106,7 @@ public static class EventsEndpoints
 
         try
         {
-            var events = await eventsService.GetCurrentMonthEvents(userId);
+            var events = await eventsService.GetCurrentMonthEvents(userId, timezone);
            
             return Results.Ok(events);
         }

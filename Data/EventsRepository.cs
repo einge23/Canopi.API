@@ -20,19 +20,34 @@ public class EventsRepository: IEventsRepository
         return @event;
     }
 
-    public async Task<List<Event>> GetCurrentMonthEventsAsync(string userId)
+    public async Task<List<Event>> GetCurrentMonthEventsAsync(string userId, string userTimeZoneId)
     {
         ArgumentNullException.ThrowIfNull(userId);
+
         
-        var now = DateTime.UtcNow;
-        var monthStart = new DateTime(now.Year, now.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-        var nextMonthStart = monthStart.AddMonths(1);
-        
+        TimeZoneInfo userTimeZone;
+        try
+        {
+            userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(userTimeZoneId);
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            userTimeZone = TimeZoneInfo.Utc;
+        }
+        var nowInUserTimeZone = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, userTimeZone);
+
+        var monthStartInUserTimeZone = new DateTime(nowInUserTimeZone.Year, nowInUserTimeZone.Month, 1);
+
+        var nextMonthStartInUserTimeZone = monthStartInUserTimeZone.AddMonths(1);
+
+        var monthStartUtc = TimeZoneInfo.ConvertTimeToUtc(monthStartInUserTimeZone, userTimeZone);
+        var nextMonthStartUtc = TimeZoneInfo.ConvertTimeToUtc(nextMonthStartInUserTimeZone, userTimeZone);
+
         return await _context.Events.Where(e =>
                 e.UserId == userId &&
                 e.IsDeleted == null &&
-                e.StartTime < nextMonthStart &&
-                e.EndTime > monthStart
+                e.StartTime < nextMonthStartUtc &&
+                e.EndTime > monthStartUtc
             )
             .ToListAsync();
     }
