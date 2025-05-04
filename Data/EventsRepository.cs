@@ -20,7 +20,7 @@ public class EventsRepository: IEventsRepository
         return @event;
     }
 
-    public async Task<List<Event>> GetCurrentMonthEventsAsync(string userId, string userTimeZoneId)
+    public async Task<List<Event>> GetMonthlyEventsAsync(string userId, int year, int month, string userTimeZoneId)
     {
         ArgumentNullException.ThrowIfNull(userId);
 
@@ -34,9 +34,8 @@ public class EventsRepository: IEventsRepository
         {
             userTimeZone = TimeZoneInfo.Utc;
         }
-        var nowInUserTimeZone = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, userTimeZone);
-
-        var monthStartInUserTimeZone = new DateTime(nowInUserTimeZone.Year, nowInUserTimeZone.Month, 1);
+        
+        var monthStartInUserTimeZone = new DateTime(year, month, 1);
 
         var nextMonthStartInUserTimeZone = monthStartInUserTimeZone.AddMonths(1);
 

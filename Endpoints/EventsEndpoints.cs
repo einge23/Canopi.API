@@ -22,9 +22,9 @@ public static class EventsEndpoints
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .AddEndpointFilter<ValidationFilter<CreateEventRequest>>();
         
-        //Route: GET /api/events/current-month
-        group.MapGet("/currentMonth", GetCurrentMonthEvents)
-            .WithName("GetCurrentMonthEvents")
+        //Route: GET /api/events/
+        group.MapGet("/", GetMonthlyEvents)
+            .WithName("GetMonthlyEvents")
             .Produces<List<EventDto>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .ProducesProblem(StatusCodes.Status401Unauthorized);
@@ -88,13 +88,38 @@ public static class EventsEndpoints
         }
     }
 
-    private static async Task<IResult> GetCurrentMonthEvents(
+    private static async Task<IResult> GetMonthlyEvents(
+        [FromQuery] int month,
+        [FromQuery] int year,
         [FromQuery] string timezone,
         IEventsService eventsService,
         HttpContext httpContext,
         LinkGenerator linkGenerator,
         ILogger<EventEndpointsLogger> logger)
     {
+        var validationErrors = new Dictionary<string, string[]>();
+            
+        if (year <= 0)
+        {
+            validationErrors.Add(nameof(year), new[] { "Year must be a positive integer." });
+        }
+
+        if (month < 1 || month > 12)
+        {
+            validationErrors.Add(nameof(month), new[] { "Month must be between 1 and 12." });
+        }
+
+        if (string.IsNullOrEmpty(timezone))
+        {
+            validationErrors.Add(nameof(timezone), new[] { "Timezone is required." });
+        }
+
+        if (validationErrors.Count > 0)
+        {
+            return Results.ValidationProblem(validationErrors, statusCode: StatusCodes.Status422UnprocessableEntity);
+        }
+        
+        
         var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
                      ?? httpContext.User.FindFirstValue("sub");
         
@@ -106,7 +131,7 @@ public static class EventsEndpoints
 
         try
         {
-            var events = await eventsService.GetCurrentMonthEvents(userId, timezone);
+            var events = await eventsService.GetMonthlyEvents(userId, year, month, timezone);
            
             return Results.Ok(events);
         }
